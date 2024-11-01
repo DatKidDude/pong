@@ -1,6 +1,40 @@
-import pygame, sys
+import pygame
+import sys
+import random
          
 pygame.init()
+
+
+class Ball:
+    """A ball that the paddles hit"""
+
+    def __init__(self, board, color):
+        self.board = board
+        self.color = color
+        # Set the starting position in the center of the board
+        self.center = pygame.math.Vector2(
+            self.board.center_line.x,
+            self.board.center_line.height // 2
+            )
+        self.speed = pygame.math.Vector2(10, 10)
+        self.radius = 10
+        # Draw the ball 
+        self.ball_obj = pygame.draw.circle(
+            self.board.board_surface, self.color, self.center, self.radius
+        )
+
+
+    def update(self):
+        """Move the ball around"""
+        self.ball_obj.move_ip(self.speed)
+
+        if self.ball_obj.right >= self.board.board_rect.right or self.ball_obj.left < 0:
+            self.speed.x = -self.speed.x 
+        
+        if self.ball_obj.bottom >= self.board.board_rect.bottom or self.ball_obj.top < 0:
+            self.speed.y = -self.speed.y
+        
+        pygame.draw.circle(self.board.board_surface, self.color, self.ball_obj.center, self.radius)
 
 
 class Paddle:
@@ -30,7 +64,6 @@ class Paddle:
         
         pygame.draw.rect(self.board.board_surface, self.color, self.paddle, 0, 2)
         
-
 class GameBoard:
     """An outline of the playable game area"""
     def __init__(self, screen, color):
@@ -46,7 +79,7 @@ class GameBoard:
         self.board_rect = pygame.Rect(0, 0, 850, 550)
         # Board center line
         self.center_line = pygame.draw.line(self.board_surface, self.color, (self.board_surface_rect.width / 2, 0), (self.board_surface_rect.width / 2, self.board_surface_rect.height))
-    
+
 
     def render_board(self):
         """Draw the gameboard"""
@@ -76,7 +109,9 @@ clock = pygame.time.Clock()
 
 # Create the gameboard
 gameboard = GameBoard(screen, WHITE)
+# Create the player
 player = Paddle(gameboard, GREEN, 10, 0)
+ball = Ball(gameboard, "maroon")
 
 running = True
 while running:
@@ -85,7 +120,7 @@ while running:
             running = False
 
     player.update()
-    ai.update()
+    ball.update()
     gameboard.render_board()
 
     # Draw everything on the screen
@@ -96,3 +131,4 @@ while running:
 
 pygame.quit()
 sys.exit()
+
